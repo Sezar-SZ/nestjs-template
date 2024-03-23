@@ -61,7 +61,6 @@ export class AuthController {
     @UseGuards(AccessTokenGuard)
     @Get()
     async getProfile(@Req() req) {
-        console.log(req.user);
         return await this.authService.getCurrentUser(req.user.email);
     }
 

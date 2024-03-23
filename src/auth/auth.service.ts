@@ -27,11 +27,7 @@ export class AuthService {
     async signUp(createUserDto: CreateUserDto, response: Response) {
         try {
             const newUser = await this.userService.create(createUserDto);
-            const tokens = await this.getTokens(
-                newUser.id,
-                newUser.email,
-                newUser.role
-            );
+            const tokens = await this.getTokens(newUser.id, newUser.email);
             await this.userService.addRefreshToken(
                 newUser.id,
                 tokens.refreshToken
@@ -55,7 +51,7 @@ export class AuthService {
 
         const match = await bcrypt.compare(loginDto.password, user.password);
         if (match) {
-            const tokens = await this.getTokens(user.id, user.email, user.role);
+            const tokens = await this.getTokens(user.id, user.email);
             await this.userService.addRefreshToken(
                 user.id,
                 tokens.refreshToken
@@ -97,17 +93,16 @@ export class AuthService {
 
         if (!user || !refreshToken || !refreshTokenMatches)
             throw new ForbiddenException("Access Denied");
-        const tokens = await this.getTokens(user.id, user.email, user.role);
+        const tokens = await this.getTokens(user.id, user.email);
         return { accessToken: tokens.accessToken };
     }
 
-    async getTokens(userId: number, email: string, role: Role) {
+    async getTokens(userId: number, email: string) {
         const [accessToken, refreshToken] = await Promise.all([
             this.jwtService.signAsync(
                 {
                     sub: userId,
                     email,
-                    role,
                 },
                 {
                     secret: this.configService.get<string>("JWT_ACCESS_SECRET"),
@@ -118,7 +113,6 @@ export class AuthService {
                 {
                     sub: userId,
                     email,
-                    role,
                 },
                 {
                     secret: this.configService.get<string>(
