@@ -4,7 +4,7 @@ import {
     InternalServerErrorException,
     UnauthorizedException,
 } from "@nestjs/common";
-import * as bcrypt from "bcrypt";
+import * as bcrypt from "bcryptjs";
 import { Response } from "express";
 import { JwtService } from "@nestjs/jwt";
 import { UsersService } from "../users/users.service";
